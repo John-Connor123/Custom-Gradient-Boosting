@@ -1,2 +1,2 @@
 # Custom-Gradient-Boosting
-This is a my implementation of popular machine learning method - gradient boosting. MSE of my implementation less that MSE of sklearn.ensemble.GradientBoostingRegressor class, but it fits slower.
+This is my implementation of a popular machine learning technique called gradient boosting. The MSE of my implementation is smaller than the MSE of the sklearn.ensemble.GradientBoostingRegressor class, but it fits slower.
