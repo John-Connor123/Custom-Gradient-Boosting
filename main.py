@@ -6,35 +6,6 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-def load_numpy_dataset():
-    # Load Boston house prices dataset
-    df = pd.read_csv(
-        filepath_or_buffer="http://lib.stat.cmu.edu/datasets/boston",
-        delim_whitespace=True,
-        skiprows=21,
-        header=None,
-    )
-    columns = ['CRIM', 'ZN', 'INDUS', 'CHAS', 'NOX', 'RM', 'AGE',
-               'DIS', 'RAD', 'TAX', 'PTRATIO', 'B', 'LSTAT', 'MEDV', ]
-
-    # Flatten all the values into a single long list and remove the nulls
-    values_w_nulls = df.values.flatten()
-    all_values = values_w_nulls[~np.isnan(values_w_nulls)]
-
-    # Reshape the values to have 14 columns and make a new df out of them
-    X = pd.DataFrame(
-        data=all_values.reshape(-1, len(columns)),
-        columns=columns,
-    )
-    return np.array(X)
-
-
-X = load_numpy_dataset()
-y = X[:, -1]
-X = X[:, :-1]
-X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
-
-
 # 1) Implement.
 class MyDecisionTreeRegressor:
     def __init__(self, max_depth=None, min_samples_leaf=1):
@@ -132,19 +103,44 @@ class MyGradientBoostingRegressor:
         return np.sum(trees_predictions, axis=1)
 
 
-def mse(y_true, y_pred):
-    return np.mean(np.power(y_true - y_pred, 2))
+def load_numpy_dataset():
+    # Load Boston house prices dataset
+    df = pd.read_csv(
+        filepath_or_buffer="http://lib.stat.cmu.edu/datasets/boston",
+        delim_whitespace=True,
+        skiprows=21,
+        header=None,
+    )
+    columns = ['CRIM', 'ZN', 'INDUS', 'CHAS', 'NOX', 'RM', 'AGE',
+               'DIS', 'RAD', 'TAX', 'PTRATIO', 'B', 'LSTAT', 'MEDV', ]
+
+    # Flatten all the values into a single long list and remove the nulls
+    values_w_nulls = df.values.flatten()
+    all_values = values_w_nulls[~np.isnan(values_w_nulls)]
+
+    # Reshape the values to have 14 columns and make a new df out of them
+    X = pd.DataFrame(
+        data=all_values.reshape(-1, len(columns)),
+        columns=columns,
+    )
+    return np.array(X)
 
 
-# 2) Measure performance — sklearn.
+# 2) Prepared data
+X = load_numpy_dataset()
+y = X[:, -1]
+X = X[:, :-1]
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+# 3) Measure performance — sklearn.
 np.random.seed(42)
 sklearn_model = GradientBoostingRegressor()
 sklearn_model.fit(X_train, y_train)
 sklearn_y_pred = sklearn_model.predict(X_test)
-print(f'Sklearn score:', mse(y_test, sklearn_y_pred))
+print(f'Sklearn score:', MyDecisionTreeRegressor.mse(y_test, sklearn_y_pred))
 
-# 3) Measure performance — our implementation.
+# 4) Measure performance — our implementation.
 np.random.seed(42)
 my_model = MyGradientBoostingRegressor()
 my_model.fit(X_train, y_train)
-print(f'MyGradientBoostingRegressor score:', mse(y_test, my_model.predict(X_test)))
+print(f'MyGradientBoostingRegressor score:', MyDecisionTreeRegressor.mse(y_test, my_model.predict(X_test)))
